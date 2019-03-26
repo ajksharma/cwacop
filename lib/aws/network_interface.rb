@@ -1,5 +1,5 @@
-require_relative './constants'
-require_relative './resource'
+require_relative '../constants'
+require_relative '../resource'
 
 class NetworkInterface < Resource
 
@@ -38,7 +38,7 @@ class NetworkInterface < Resource
 
   def facts
     [
-      [:type_value, net_id = @network_interface.network_interface_id, Constants.NetworkInterface],
+      [:type_value, net_id = @network_interface.network_interface_id, Cwacop::AWS.NetworkInterface],
       [:link, net_id, @network_interface.subnet_id],
       [:link, net_id, @network_interface.vpc_id]
     ]

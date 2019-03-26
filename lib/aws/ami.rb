@@ -1,5 +1,5 @@
-require_relative './constants'
-require_relative './resource'
+require_relative '../constants'
+require_relative '../resource'
 
 class AMI < Resource
 
@@ -47,8 +47,8 @@ class AMI < Resource
 
   def facts
     [
-      [:typed_value, ami = @image.image_id, Constants.AMI],
-      [:typed_value, image_type = @image.image_type, Constants.AMIType],
+      [:typed_value, ami = @image.image_id, Cwacop::AWS.AMI],
+      [:typed_value, image_type = @image.image_type, Cwacop::AWS.AMIType],
       [:link, ami, image_type]
     ] + block_device_facts
   end

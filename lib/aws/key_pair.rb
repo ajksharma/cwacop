@@ -1,5 +1,5 @@
-require_relative './constants'
-require_relative './resource'
+require_relative '../constants'
+require_relative '../resource'
 
 class KeyPair < Resource
 
@@ -12,8 +12,8 @@ class KeyPair < Resource
 
   def facts
     [
-      [:typed_value, fingerprint = @key_pair.key_fingerprint, Constants.KeyFingerprint],
-      [:type_value, name = @key_pair.key_name, Constants.KeyName]
+      [:typed_value, fingerprint = @key_pair.key_fingerprint, Cwacop::AWS.KeyFingerprint],
+      [:type_value, name = @key_pair.key_name, Cwacop::AWS.KeyName]
     ]
   end
 

@@ -1,5 +1,5 @@
-require_relative './constants'
-require_relative './resource'
+require_relative '../constants'
+require_relative '../resource'
 
 class SecurityGroup < Resource
 
@@ -17,8 +17,8 @@ class SecurityGroup < Resource
 
   def facts
     [
-      [:typed_value, group_id, Constants.SecurityGroup],
-      [:typed_value, group_name, Constants.SecurtityGroupName],
+      [:typed_value, group_id, Cwacop::AWS.SecurityGroup],
+      [:typed_value, group_name, Cwacop::AWS.SecurtityGroupName],
       [:link, group_id, group_name]
     ] + permission_facts
   end

@@ -1,5 +1,5 @@
-require_relative './constants'
-require_relative './resource'
+require_relative '../constants'
+require_relative '../resource'
 
 class Subnet < Resource
   
@@ -24,7 +24,7 @@ class Subnet < Resource
 
   def facts
     [
-      [:typed_value, subnet_id = @subnet.subnet_id, Constants.Subnet],
+      [:typed_value, subnet_id = @subnet.subnet_id, Cwacop::AWS.Subnet],
       [:link, subnet_id, @subent.availability_zone],
       [:link, subnet_id, @subnet.vpc_id]
     ]
