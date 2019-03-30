@@ -37,7 +37,7 @@ class Volume < Resource
 
   def facts
     [
-      [:yped_value, volume_id, Cwacop::AWS.Volume],
+      [:yped_value, volume_id, Cwacop::AWS::Volume],
       [:link, volum_id, snapshot_id]
     ] + attachment_facts
   end

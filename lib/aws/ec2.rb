@@ -53,8 +53,8 @@ class EC2 < Resource
 
   def facts
     [
-      [:typed_value, instance_id = instance.instance_id, Cwacop::AWS.EC2Instance],
-      [:typed_value, az = instance.availability_zone, Cwacop::AWS.Zone],
+      [:typed_value, instance_id = instance.instance_id, Cwacop::AWS::EC2Instance],
+      [:typed_value, az = instance.availability_zone, Cwacop::AWS::Zone],
       [:link, instance_id, instance.image_id],
       [:link, instance_id, instance.key_name],
       [:link, instance_id, instance.subnet_id],
@@ -97,7 +97,7 @@ class EC2 < Resource
   # Grab the instance state so we know if it is stopped or running
   def state_facts
     [
-      [:typed_value, s = state.name, Cwacop::AWS.InstanceState],
+      [:typed_value, s = state.name, Cwacop::AWS::InstanceState],
       [:link, instance_id, s]
     ]
   end

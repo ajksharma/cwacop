@@ -45,18 +45,28 @@ class AMI < Resource
     @image = image
   end
 
+  def image_id
+    @image.image_id
+  end
+
+  def image_type
+    @image.image_type
+  end
+
   def facts
     [
-      [:typed_value, ami = @image.image_id, Cwacop::AWS.AMI],
-      [:typed_value, image_type = @image.image_type, Cwacop::AWS.AMIType],
-      [:link, ami, image_type]
+      [:typed_value, image_id, Cwacop::AWS::AMI],
+      [:typed_value, image_type, Cwacop::AWS::AMIType],
+      [:link, image_id, image_type]
     ] + block_device_facts
   end
 
   def block_device_facts
     @image.block_device_mappings.map do |device_mapping|
-      [:link, @image.image_id, device_mapping.ebs.snapshot_id]
-    end
+      unless device_mapping.ebs.nil?
+        [:link, image_id, device_mapping.ebs.snapshot_id]
+      end
+    end.compact
   end
 
 end

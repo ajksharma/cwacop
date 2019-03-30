@@ -22,11 +22,23 @@ class Subnet < Resource
     @subnet = subnet
   end
 
+  def subnet_id
+    @subnet.subnet_id
+  end
+
+  def availability_zone
+    @subnet.availability_zone
+  end
+
+  def vpc_id
+    @subnet.vpc_id
+  end
+
   def facts
     [
-      [:typed_value, subnet_id = @subnet.subnet_id, Cwacop::AWS.Subnet],
-      [:link, subnet_id, @subent.availability_zone],
-      [:link, subnet_id, @subnet.vpc_id]
+      [:typed_value, subnet_id, Cwacop::AWS::Subnet],
+      [:link, subnet_id, availability_zone],
+      [:link, subnet_id, vpc_id]
     ]
   end
 

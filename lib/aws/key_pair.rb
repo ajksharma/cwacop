@@ -10,10 +10,18 @@ class KeyPair < Resource
     @key_pair = key_pair
   end
 
+  def name
+    @key_pair.key_name
+  end
+
+  def fingerprint
+    @key_pair.key_fingerprint
+  end
+
   def facts
     [
-      [:typed_value, fingerprint = @key_pair.key_fingerprint, Cwacop::AWS.KeyFingerprint],
-      [:type_value, name = @key_pair.key_name, Cwacop::AWS.KeyName]
+      [:typed_value, fingerprint, Cwacop::AWS::KeyFingerprint],
+      [:typed_value, name, Cwacop::AWS::KeyName]
     ]
   end
 

@@ -25,10 +25,18 @@ class VPC < Resource
     @vpc = vpc
   end
 
+  def vpc_id
+    @vpc.vpc_id
+  end
+
+  def cidr_block
+    @vpc.cidr_block
+  end
+
   def facts
     [
-      [:typed_value, vpc_id = @vpc.vpc_id, Cwacop::AWS.VPC],
-      [:typed_value, cidr_block = @vpc.cidr_block, Cwacop::AWS.CidrBlock],
+      [:typed_value, vpc_id, Cwacop::AWS::VPC],
+      [:typed_value, cidr_block, Cwacop::AWS::CidrBlock],
       [:link, vpc_id, cidr_block]
     ]
   end

@@ -32,6 +32,7 @@ class Context
   def generate_resource_graphs!(prefix, region)
     ec2_client = Aws::EC2::Resource.new(region: region)
     generic_client = Aws::EC2::Client.new(region: region)
+    iam = Aws::IAM::Client.new(region: region)
 
     # Create the directory where we'll persist the resource graph
     region_dir = File.join(prefix, region)
@@ -40,74 +41,75 @@ class Context
     ##
     # Grab the VPCs
     generic_client.describe_vpcs.vpcs.each do |v|
-      context.contextualize_resource!(VPC, v)
+      contextualize_resource!(VPC, v)
     end
-    context.persist_to_disk!(File.join(region_dir, 'vpc.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'vpc.pl'))
+    reset!
 
     ##
     # Grab the network interface.
     generic_client.describe_network_interfaces.network_interfaces.each do |n|
-      context.contextualize_resource!(NetworkInterface, n)
+      contextualize_resource!(NetworkInterface, n)
     end
-    context.persist_to_disk!(File.join(region_dir, 'net.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'net.pl'))
+    reset!
 
     ##
     # Grab all the subnets.
     generic_client.describe_subnets.subnets.each do |s|
-      context.contextualize_resource!(Subnet, s)
+      contextualize_resource!(Subnet, s)
     end
-    context.persist_to_disk!(File.join(region_dir, 'subnet.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'subnet.pl'))
+    reset!
   
     ##
     # Grab all the AMIs.
     generic_client.describe_images({executable_users: ['self']}).images.each do |i|
-      context.contextualize_resource!(AMI, i)
+      contextualize_resource!(AMI, i)
     end
-    context.persist_to_disk!(File.join(region_dir, 'image.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'image.pl'))
+    reset!
 
     ##
     # Grab all the SSH keys.
     generic_client.describe_key_pairs.key_pairs.each do |k|
-      context.contextualize_resource!(KeyPair, k)
+      contextualize_resource!(KeyPair, k)
     end
-    context.persist_to_disk!(File.join(region_dir, 'key.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'key.pl'))
+    reset!
 
     ##
     # Grab all the instances and link them with whatever other resources they're connected to.
     ec2_client.instances.each do |i|
-      context.contextualize_resource!(EC2, i)
+      contextualize_resource!(EC2, i)
     end
-    context.persist_to_disk!(File.join(region_dir, 'ec2.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'ec2.pl'))
+    reset!
 
     ##
     # Grab all the security groups so we can see which ones are being used.
     generic_client.describe_security_groups.security_groups.each do |sg|
-      context.contextualize_resource!(SecurityGroup, sg)
+      contextualize_resource!(SecurityGroup, sg)
     end
-    context.persist_to_disk!(File.join(region_dir, 'sg.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'sg.pl'))
+    reset!
 
     ##
     # Grab the volumes.
     generic_client.describe_volumes.volumes.each do |v|
-      context.contextualize_resource!(Volume, v)
+      contextualize_resource!(Volume, v)
     end
-    context.persist_to_disk!(File.join(region_dir, 'volume.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'volume.pl'))
+    reset!
 
     ##
     # Grab the snapshots.
-    generic_client.describe_snapshots.snapshots.each do |s|
-      context.contextualize_resource!(Snapshot, s)
+    user_id = iam.get_user.user.arn.split(':')[-2]
+    generic_client.describe_snapshots({owner_ids: [user_id]}).snapshots.each do |s|
+      contextualize_resource!(Snapshot, s)
     end
-    context.persist_to_disk!(File.join(region_dir, 'snapshot.pl'))
-    context.reset!
+    persist_to_disk!(File.join(region_dir, 'snapshot.pl'))
+    reset!
   end
 
   ##

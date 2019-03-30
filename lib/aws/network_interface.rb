@@ -36,11 +36,23 @@ class NetworkInterface < Resource
     @network_interface = network_interface
   end
 
+  def network_interface_id
+    @network_interface.network_interface_id
+  end
+
+  def subnet_id
+    @network_interface.subnet_id
+  end
+
+  def vpc_id
+    @network_interface.vpc_id
+  end
+
   def facts
     [
-      [:type_value, net_id = @network_interface.network_interface_id, Cwacop::AWS.NetworkInterface],
-      [:link, net_id, @network_interface.subnet_id],
-      [:link, net_id, @network_interface.vpc_id]
+      [:typed_value, net_id = network_interface_id, Cwacop::AWS::NetworkInterface],
+      [:link, net_id, subnet_id],
+      [:link, net_id, vpc_id]
     ]
   end
 

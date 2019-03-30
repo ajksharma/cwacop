@@ -32,7 +32,7 @@ class Snapshot < Resource
 
   def facts
     [
-      [:typed_value, snapshot_id, Cwacop::AWS.Snapshot],
+      [:typed_value, snapshot_id, Cwacop::AWS::Snapshot],
       [:link, snapshot_id, volume_id]
     ]
   end

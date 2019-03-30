@@ -17,14 +17,14 @@ class SecurityGroup < Resource
 
   def facts
     [
-      [:typed_value, group_id, Cwacop::AWS.SecurityGroup],
-      [:typed_value, group_name, Cwacop::AWS.SecurtityGroupName],
+      [:typed_value, group_id, Cwacop::AWS::SecurityGroup],
+      [:typed_value, group_name, Cwacop::AWS::SecurityGroupName],
       [:link, group_id, group_name]
     ] + permission_facts
   end
 
   def permission_facts
-    @security_group.ip_permissions.flatmap do |ip_permission|
+    @security_group.ip_permissions.flat_map do |ip_permission|
       ip_permission.user_id_group_pairs.map do |group_pair|
         [:link, group_id, group_pair.group_id]
       end
