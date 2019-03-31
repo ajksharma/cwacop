@@ -3,8 +3,6 @@ require_relative '../resource'
 
 class EC2 < Resource
 
-  GraphFile = 'ec2.pl'
-
   def initialize(instance)
     @instance = instance
   end

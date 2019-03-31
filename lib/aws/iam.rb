@@ -3,8 +3,6 @@ require_relative '../resource'
 
 class IAM < Resource
 
-  GraphFile = 'iam.pl'
-
   def initialize(iam_details)
     @iam_details = iam_details
   end

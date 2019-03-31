@@ -39,71 +39,53 @@ class Context
     region_dir = File.join(prefix, region)
     FileUtils.mkdir_p(region_dir)
     # We do this a lot below to save the graphs so better to factor out
-    persistor = ->(resource) { persist_to_disk!(File.join(region_dir, resource::GraphFile)) }
+    persistor = ->(resource) { persist_to_disk!(File.join(region_dir, "#{resource.name.downcase}.pl")) }
 
-    ##
-    # Grab the VPCs
-    generic_client.describe_vpcs.vpcs.each do |v|
-      contextualize_resource!(VPC, v)
+    {
+      VPC => {
+        client: generic_client,
+        method_chain: [[:describe_vpcs], [:vpcs]]
+      },
+      NetworkInterface => {
+        client: generic_client,
+        method_chain: [[:describe_network_interfaces], [:network_interfaces]]
+      },
+      Subnet => {
+        client: generic_client,
+        method_chain: [[:describe_subnets], [:subnets]]
+      },
+      AMI => {
+        client: generic_client,
+        method_chain: [[:describe_images, {executable_users: ['self']}], [:images]]
+      },
+      KeyPair => {
+        client: generic_client,
+        method_chain: [[:describe_key_pairs], [:key_pairs]]
+      },
+      EC2 => {
+        client: ec2_client,
+        method_chain: [[:instances]]
+      },
+      SecurityGroup => {
+        client: generic_client,
+        method_chain: [[:describe_security_groups], [:security_groups]]
+      },
+      Volume => {
+        client: generic_client,
+        method_chain: [[:describe_volumes], [:volumes]]
+      },
+      Snapshot => {
+        client: generic_client,
+        method_chain: [[:describe_snapshots, {owner_ids: [iam.get_user.user.arn.split(':')[-2]]}], [:snapshots]]
+      }
+    }.each do |resource, parameters|
+        remote_resource = parameters[:method_chain].reduce(parameters[:client]) { |e, m| m.send(*e) }
+        remote_resource.each do |v|
+          contextualize_resource!(resource, v)
+        end
+        persistor[resource]
+        reset!
     end
-    persistor[VPC]
-    reset!
-
-    ##
-    # Grab the network interface.
-    generic_client.describe_network_interfaces.network_interfaces.each do |n|
-      contextualize_resource!(NetworkInterface, n)
-    end
-    persistor[NetworkInterface]
-    reset!
-
-    ##
-    # Grab all the subnets.
-    generic_client.describe_subnets.subnets.each do |s|
-      contextualize_resource!(Subnet, s)
-    end
-    persistor[Subnet]
-    reset!
-  
-    ##
-    # Grab all the AMIs.
-    generic_client.describe_images({executable_users: ['self']}).images.each do |i|
-      contextualize_resource!(AMI, i)
-    end
-    persistor[AMI]
-    reset!
-
-    ##
-    # Grab all the SSH keys.
-    generic_client.describe_key_pairs.key_pairs.each do |k|
-      contextualize_resource!(KeyPair, k)
-    end
-    persistor[KeyPair]
-    reset!
-
-    ##
-    # Grab all the instances and link them with whatever other resources they're connected to.
-    ec2_client.instances.each do |i|
-      contextualize_resource!(EC2, i)
-    end
-    persistor[EC2]
-    reset!
-
-    ##
-    # Grab all the security groups so we can see which ones are being used.
-    generic_client.describe_security_groups.security_groups.each do |sg|
-      contextualize_resource!(SecurityGroup, sg)
-    end
-    persistor[SecurityGroup]
-    reset!
-
-    ##
-    # Grab the volumes.
-    generic_client.describe_volumes.volumes.each do |v|
-      contextualize_resource!(Volume, v)
-    end
-    persistor[Volume]
-    reset!
 
     ##
     # Grab all the users.
@@ -114,14 +96,6 @@ class Context
     persistor[IAM]
     reset!
 
-    ##
-    # Grab the snapshots.
-    user_id = iam.get_user.user.arn.split(':')[-2]
-    generic_client.describe_snapshots({owner_ids: [user_id]}).snapshots.each do |s|
-      contextualize_resource!(Snapshot, s)
-    end
-    persist_to_disk!(File.join(region_dir, 'snapshot.pl'))
-    reset!
   end
 
   ##

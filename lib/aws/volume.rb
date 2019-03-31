@@ -3,8 +3,6 @@ require_relative '../resource'
 
 class Volume < Resource
 
-  GraphFile = 'volume.pl'
-
   def initialize(volume)
     # => #<struct Aws::EC2::Types::Volume
     #  attachments=

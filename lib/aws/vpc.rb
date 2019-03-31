@@ -3,8 +3,6 @@ require_relative '../resource'
 
 class VPC < Resource
 
-  GraphFile = 'vpc.pl'
-
   def initialize(vpc)
     # => #<struct Aws::EC2::Types::DescribeVpcsResult
     #  vpcs=

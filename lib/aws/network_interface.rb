@@ -3,8 +3,6 @@ require_relative '../resource'
 
 class NetworkInterface < Resource
 
-  GraphFile = 'net.pl'
-
   def initialize(network_interface)
     # => #<struct Aws::EC2::Types::NetworkInterface
     #  association=nil,
