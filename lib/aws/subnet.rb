@@ -3,6 +3,8 @@ require_relative '../resource'
 
 class Subnet < Resource
   
+  GraphFile = 'subnet.pl'
+
   def initialize(subnet)
     # => #<struct Aws::EC2::Types::Subnet
     #  availability_zone="us-east-1b",

@@ -3,6 +3,8 @@ require_relative '../resource'
 
 class AMI < Resource
 
+  GraphFile = 'ami.pl'
+
   def initialize(image)
     # => #<struct Aws::EC2::Types::Image
     #  architecture="x86_64",

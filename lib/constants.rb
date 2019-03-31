@@ -15,6 +15,9 @@ module Cwacop
     SecurityGroupName = 'security_group_name'
     Volume = 'volume'
     Snapshot = 'snapshot'
+    UserId = 'user_id'
+    UserName = 'user_name'
+    Arn = 'arn'
   end
 
 end

@@ -3,7 +3,8 @@ require 'fileutils'
 
 [
   'ec2', 'vpc', 'network_interface', 'subnet',
-  'ami', 'key_pair', 'security_group', 'volume', 'snapshot'
+  'ami', 'key_pair', 'security_group', 'volume', 'snapshot',
+  'iam'
 ].each { |l| require_relative "./aws/#{l}" }
 
 ##
@@ -37,13 +38,15 @@ class Context
     # Create the directory where we'll persist the resource graph
     region_dir = File.join(prefix, region)
     FileUtils.mkdir_p(region_dir)
+    # We do this a lot below to save the graphs so better to factor out
+    persistor = ->(resource) { persist_to_disk!(File.join(region_dir, resource::GraphFile)) }
 
     ##
     # Grab the VPCs
     generic_client.describe_vpcs.vpcs.each do |v|
       contextualize_resource!(VPC, v)
     end
-    persist_to_disk!(File.join(region_dir, 'vpc.pl'))
+    persistor[VPC]
     reset!
 
     ##
@@ -51,7 +54,7 @@ class Context
     generic_client.describe_network_interfaces.network_interfaces.each do |n|
       contextualize_resource!(NetworkInterface, n)
     end
-    persist_to_disk!(File.join(region_dir, 'net.pl'))
+    persistor[NetworkInterface]
     reset!
 
     ##
@@ -59,7 +62,7 @@ class Context
     generic_client.describe_subnets.subnets.each do |s|
       contextualize_resource!(Subnet, s)
     end
-    persist_to_disk!(File.join(region_dir, 'subnet.pl'))
+    persistor[Subnet]
     reset!
   
     ##
@@ -67,7 +70,7 @@ class Context
     generic_client.describe_images({executable_users: ['self']}).images.each do |i|
       contextualize_resource!(AMI, i)
     end
-    persist_to_disk!(File.join(region_dir, 'image.pl'))
+    persistor[AMI]
     reset!
 
     ##
@@ -75,7 +78,7 @@ class Context
     generic_client.describe_key_pairs.key_pairs.each do |k|
       contextualize_resource!(KeyPair, k)
     end
-    persist_to_disk!(File.join(region_dir, 'key.pl'))
+    persistor[KeyPair]
     reset!
 
     ##
@@ -83,7 +86,7 @@ class Context
     ec2_client.instances.each do |i|
       contextualize_resource!(EC2, i)
     end
-    persist_to_disk!(File.join(region_dir, 'ec2.pl'))
+    persistor[EC2]
     reset!
 
     ##
@@ -91,7 +94,7 @@ class Context
     generic_client.describe_security_groups.security_groups.each do |sg|
       contextualize_resource!(SecurityGroup, sg)
     end
-    persist_to_disk!(File.join(region_dir, 'sg.pl'))
+    persistor[SecurityGroup]
     reset!
 
     ##
@@ -99,7 +102,16 @@ class Context
     generic_client.describe_volumes.volumes.each do |v|
       contextualize_resource!(Volume, v)
     end
-    persist_to_disk!(File.join(region_dir, 'volume.pl'))
+    persistor[Volume]
+    reset!
+
+    ##
+    # Grab all the users.
+    binding.pry
+    iam.get_account_authorization_details.each do |d|
+      contextualize_resource!(IAM, d)
+    end
+    persistor[IAM]
     reset!
 
     ##

@@ -3,6 +3,8 @@ require_relative '../resource'
 
 class SecurityGroup < Resource
 
+  GraphFile = 'sg.pl'
+
   def initialize(security_group)
     @security_group = security_group
   end
