@@ -1,4 +1,3 @@
-require_relative '../constants'
 require_relative '../resource'
 
 class VPC < Resource
@@ -35,9 +34,8 @@ class VPC < Resource
 
   def facts
     [
-      [:typed_value, vpc_id, Cwacop::AWS::VPC],
-      [:typed_value, cidr_block, Cwacop::AWS::CidrBlock],
-      [:link, vpc_id, cidr_block]
+      [:typed_value, type_name, vpc_id],
+      [:link, vpc_id, :cidr, cidr_block],
     ]
   end
 

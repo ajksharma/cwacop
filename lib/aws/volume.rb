@@ -37,14 +37,14 @@ class Volume < Resource
 
   def facts
     [
-      [:yped_value, volume_id, Cwacop::AWS::Volume],
-      [:link, volum_id, snapshot_id]
+      [:yped_value, volume_id, type_name],
+      [:link, volum_id, :snapshot, snapshot_id]
     ] + attachment_facts
   end
 
   def attachment_facts
     @volume.attachments.map do |attachment|
-      [:link, volume_id, attachment.instance_id]
+      [:link, volume_id, :attachment, attachment.instance_id]
     end
   end
 

@@ -1,4 +1,3 @@
-require_relative '../constants'
 require_relative '../resource'
 
 class Snapshot < Resource
@@ -32,8 +31,8 @@ class Snapshot < Resource
 
   def facts
     [
-      [:typed_value, snapshot_id, Cwacop::AWS::Snapshot],
-      [:link, snapshot_id, volume_id]
+      [:typed_value, type_name, snapshot_id],
+      [:link, snapshot_id, :volume, volume_id]
     ]
   end
 

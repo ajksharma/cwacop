@@ -1,4 +1,3 @@
-require_relative '../constants'
 require_relative '../resource'
 
 class EC2 < Resource
@@ -53,13 +52,12 @@ class EC2 < Resource
 
   def facts
     [
-      [:typed_value, instance_id = instance.instance_id, Cwacop::AWS::EC2Instance],
-      [:typed_value, az = instance.availability_zone, Cwacop::AWS::Zone],
-      [:link, instance_id, instance.image_id],
-      [:link, instance_id, instance.key_name],
-      [:link, instance_id, instance.subnet_id],
-      [:link, instance_id, instance.vpc_id],
-      [:link, instance_id, az]
+      [:typed_value, type_name, instance_id = instance.instance_id],
+      [:link, instance_id, :image, instance.image_id],
+      [:link, instance_id, :key, instance.key_name],
+      [:link, instance_id, :subnet, instance.subnet_id],
+      [:link, instance_id, :vpc, instance.vpc_id],
+      [:link, instance_id, :az, az = instance.availability_zone]
     ] + device_mapping_facts +
       network_interface_facts +
       security_group_facts +
@@ -71,7 +69,7 @@ class EC2 < Resource
   def device_mapping_facts
     device_mappings.map do |device_mapping|
       volume_id = device_mapping.ebs.volume_id
-      [:link, instance_id, volume_id]
+      [:link, instance_id, :volume, volume_id]
     end
   end
   
@@ -80,7 +78,7 @@ class EC2 < Resource
   def network_interface_facts
     network_interfaces.map do |interface|
       net_id = interface.network_interface_id
-      [:link, instance_id, net_id]
+      [:link, instance_id, :network, net_id]
     end
   end
   
@@ -89,7 +87,7 @@ class EC2 < Resource
   def security_group_facts 
     security_groups.map do |group|
       group_id = group.group_id
-      [:link, instance_id, group_id]
+      [:link, instance_id, :group, group_id]
     end
   end
   
@@ -97,8 +95,7 @@ class EC2 < Resource
   # Grab the instance state so we know if it is stopped or running
   def state_facts
     [
-      [:typed_value, s = state.name, Cwacop::AWS::InstanceState],
-      [:link, instance_id, s]
+      [:link, instance_id, :state, s]
     ]
   end
 

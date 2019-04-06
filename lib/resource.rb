@@ -10,4 +10,8 @@ class Resource
     end
   end
 
+  def type_name
+    self.class.name.downcase
+  end
+
 end

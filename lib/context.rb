@@ -34,6 +34,7 @@ class Context
     ec2_client = Aws::EC2::Resource.new(region: region)
     generic_client = Aws::EC2::Client.new(region: region)
     iam = Aws::IAM::Client.new(region: region)
+    owner_id = iam.get_user.user.arn.split(':')[-2]
 
     # Create the directory where we'll persist the resource graph
     region_dir = File.join(prefix, region)
@@ -76,39 +77,40 @@ class Context
       },
       Snapshot => {
         client: generic_client,
-        method_chain: [[:describe_snapshots, {owner_ids: [iam.get_user.user.arn.split(':')[-2]]}], [:snapshots]]
+        method_chain: [[:describe_snapshots, {owner_ids: [owner_id]}], [:snapshots]]
+      },
+      IAM => {
+        client: iam,
+        method_chain: [[:get_account_authorization_details]]
       }
     }.each do |resource, parameters|
-        remote_resource = parameters[:method_chain].reduce(parameters[:client]) { |e, m| m.send(*e) }
-        remote_resource.each do |v|
-          contextualize_resource!(resource, v)
+      remote_resource = parameters[:method_chain].reduce(parameters[:client]) do |v, m|
+        begin
+          v.send(*m)
+        rescue StandardError => error
+          binding.pry
         end
-        persistor[resource]
-        reset!
+      end
+      remote_resource.each do |v|
+        contextualize_resource!(resource, v)
+      end
+      persistor[resource]
+      reset!
     end
-
-    ##
-    # Grab all the users.
-    binding.pry
-    iam.get_account_authorization_details.each do |d|
-      contextualize_resource!(IAM, d)
-    end
-    persistor[IAM]
-    reset!
 
   end
 
   ##
   # Generate a fact of the form "type(val, typ)."
-  def typed_value(val, typ)
-    @context << "type(\"#{val}\", #{typ})."
+  def typed_value(typ, val)
+    @context << "#{typ}(\"#{val}\")."
   end
 
   ##
   # Generate a fact that links two different values, e.g. "link(X, Y)."
   # "link(X, Y)." should be thought of as "X" _uses_ "Y".
-  def link(source, target)
-    @context << "link(\"#{source}\", \"#{target}\")."
+  def link(source, attribute, target)
+    @context << "link(\"#{source}\", #{attribute}, \"#{target}\")."
   end
 
   ##

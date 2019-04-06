@@ -1,4 +1,3 @@
-require_relative '../constants'
 require_relative '../resource'
 
 class AMI < Resource
@@ -55,16 +54,15 @@ class AMI < Resource
 
   def facts
     [
-      [:typed_value, image_id, Cwacop::AWS::AMI],
-      [:typed_value, image_type, Cwacop::AWS::AMIType],
-      [:link, image_id, image_type]
+      [:typed_value, type_name, image_id],
+      [:link, image_id, :image_type, image_type]
     ] + block_device_facts
   end
 
   def block_device_facts
     @image.block_device_mappings.map do |device_mapping|
       unless device_mapping.ebs.nil?
-        [:link, image_id, device_mapping.ebs.snapshot_id]
+        [:link, image_id, :device_mapping, device_mapping.ebs.snapshot_id]
       end
     end.compact
   end
