@@ -57,7 +57,7 @@ class EC2 < Resource
       [:link, instance_id, :key, instance.key_name],
       [:link, instance_id, :subnet, instance.subnet_id],
       [:link, instance_id, :vpc, instance.vpc_id],
-      [:link, instance_id, :az, az = instance.availability_zone]
+      [:link, instance_id, :az, instance.availability_zone]
     ] + device_mapping_facts +
       network_interface_facts +
       security_group_facts +
@@ -86,8 +86,7 @@ class EC2 < Resource
   # Generate facts for security groups associated with an EC2 instance
   def security_group_facts 
     security_groups.map do |group|
-      group_id = group.group_id
-      [:link, instance_id, :group, group_id]
+      [:link, instance_id, :group, group.group_id]
     end
   end
   

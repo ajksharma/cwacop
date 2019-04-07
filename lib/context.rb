@@ -109,8 +109,16 @@ class Context
   ##
   # Generate a fact that links two different values, e.g. "link(X, Y)."
   # "link(X, Y)." should be thought of as "X" _uses_ "Y".
-  def link(source, attribute, target)
-    @context << "link(\"#{source}\", #{attribute}, \"#{target}\")."
+  def link(source, attribute, *targets)
+    joined_targets = targets.map { |t| quote(t) }.join(', ')
+    @context << "link(\"#{source}\", #{attribute}, #{joined_targets})."
+  end
+
+  ##
+  # Puts quotes around a value so that in the Prolog file we
+  # get strings instead of some other data type.
+  def quote(val)
+    '"' + val + '"'
   end
 
   ##
